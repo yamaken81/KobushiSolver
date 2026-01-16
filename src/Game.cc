@@ -4,7 +4,7 @@
 
 Game::Game()
 	: window_(sf::VideoMode({ 1536, 864 }), std::string(PROJECT_NAME)),
-	  gsmanager_(StateManager::GetInstance())
+	  state_manager_(StateManager::GetInstance())
 {
 	InitStates();
 }
@@ -22,6 +22,7 @@ void Game::Run()
 	while (window_.isOpen())
 	{
 		// Restart the clock to get the time since the last frame
+		// NOTE: Delta may be unnecessary due to turn-based state of the game.
 		sf::Time delta = clock.restart();
 
 		// Process events
@@ -30,21 +31,21 @@ void Game::Run()
 			if (event->is<sf::Event::Closed>())
 				window_.close();
 
-			gsmanager_->HandleInput(*event, window_);
+			state_manager_->HandleInput(*event, window_);
 		}
 
 		// Update and render
 		window_.clear();
-		gsmanager_->Update(delta);
-		gsmanager_->Render(window_);
+		state_manager_->Update(delta);
+		state_manager_->Render(window_);
 		window_.display();
 	}
 }
 
 void Game::InitStates()
 {
-	gsmanager_->AddState(StateID::kMainMenu, std::make_unique<MainMenuState>());
-	gsmanager_->AddState(StateID::kSimulation, std::make_unique<SimulationState>());
+	state_manager_->AddState(StateID::kMainMenu, std::make_unique<MainMenuState>());
+	state_manager_->AddState(StateID::kSimulation, std::make_unique<SimulationState>());
 
-	gsmanager_->ChangeState(StateID::kMainMenu);
+	state_manager_->ChangeState(StateID::kMainMenu);
 }

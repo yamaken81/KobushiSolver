@@ -11,7 +11,7 @@ StateManager* StateManager::GetInstance()
 	if (instance_ == nullptr)
 		instance_ = new StateManager();
 
-	return instance_;
+	return std::move(instance_);
 }
 
 void StateManager::AddState(const StateID id, std::unique_ptr<GameState> state)

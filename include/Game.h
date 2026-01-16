@@ -13,9 +13,10 @@ public:
 	void Run();
 
 private:
+	std::unique_ptr<StateManager> state_manager_;
+
 	sf::RenderWindow window_;
 	sf::Clock clock_;
-	StateManager* gsmanager_;
 
 	void InitStates();
 };
