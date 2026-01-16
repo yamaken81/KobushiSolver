@@ -13,16 +13,20 @@ void MainMenuState::Init()
 	}
 
 	// TITLE TEXT
-	txt_title_.setCharacterSize(100);
-	txt_title_.setStyle(sf::Text::Bold);
-	txt_title_.setFillColor(sf::Color::White);
-	txt_title_.setString(std::string(PROJECT_NAME));
+	elements_.emplace("title", sf::Text(font_));
+	elements_.at("title").setCharacterSize(100);
+	elements_.at("title").setStyle(sf::Text::Bold);
+	elements_.at("title").setFillColor(sf::Color::White);
+	elements_.at("title").setString(std::string(PROJECT_NAME));
 
 	// START BUTTON
-	btn_start_.setCharacterSize(50);
-	btn_start_.setStyle(sf::Text::Regular);
-	btn_start_.setFillColor(sf::Color::White);
-	btn_start_.setString("PLAY");
+	elements_.emplace("start", sf::Text(font_));
+	elements_.at("start").setCharacterSize(50);
+	elements_.at("start").setStyle(sf::Text::Regular);
+	elements_.at("start").setFillColor(sf::Color::White);
+	elements_.at("start").setString("PLAY");
+
+	LayoutElements();
 }
 
 void MainMenuState::HandleInput(const sf::Event event, const sf::RenderWindow& window)
@@ -30,40 +34,39 @@ void MainMenuState::HandleInput(const sf::Event event, const sf::RenderWindow& w
 	sf::Vector2f mouse_pos = static_cast<sf::Vector2f>(sf::Mouse::getPosition(window));
 
 	// MOUSEOVER
-	if (btn_start_.getGlobalBounds().contains(mouse_pos))
-		btn_start_.setStyle(sf::Text::Bold);
+	if (elements_.at("start").getGlobalBounds().contains(mouse_pos))
+		elements_.at("start").setStyle(sf::Text::Bold);
 	else
-		btn_start_.setStyle(sf::Text::Regular);
+		elements_.at("start").setStyle(sf::Text::Regular);
 	
 	// MOUSE BUTTON
 	if (const auto* btn_pressed = event.getIf<sf::Event::MouseButtonPressed>())
 	{
 		if (btn_pressed->button == sf::Mouse::Button::Left &&
-			btn_start_.getGlobalBounds().contains(mouse_pos))
+			elements_.at("start").getGlobalBounds().contains(mouse_pos))
 			StateManager::GetInstance()->ChangeState(StateID::kSimulation);
 	}
 }
 
 void MainMenuState::Render(sf::RenderTarget& target)
 {
-	// POSITIONING
-	float vert_spacing = 100.f;
-	sf::Vector2f window_size = sf::Vector2f(target.getSize());
-	sf::Vector2f title_size = txt_title_.getLocalBounds().size;
-	sf::Vector2f start_size = btn_start_.getLocalBounds().size;
+	target.draw(elements_.at("title"));
+	target.draw(elements_.at("start"));
+}
 
-	txt_title_.setOrigin({ title_size.x / 2.f, title_size.y / 2.f });
-	btn_start_.setOrigin({ start_size.x / 2.f, start_size.y / 2.f });
+void MainMenuState::LayoutElements()
+{
+	constexpr sf::Vector2f margin = { 50.f, 50.f };
+	constexpr float padding = 50.f;
+	sf::Vector2f cursor = margin;
 
-	float total_height = title_size.y + vert_spacing + start_size.y;
-	float current_y = (window_size.y / 2.f) - (total_height / 2.f);
+	// Set origins
+	elements_.at("title").setOrigin({0.f, 0.f});
+	elements_.at("start").setOrigin({ 0.f, 0.f });
 
-	txt_title_.setPosition({ (window_size.x / 2.f), current_y + (title_size.y / 2.f) });
-	current_y += title_size.y + vert_spacing;
-	
-	btn_start_.setPosition({ (window_size.x / 2.f), current_y + (start_size.y / 2.f) });
+	elements_.at("title").setPosition(cursor);
+	cursor.y += elements_.at("title").getLocalBounds().size.y + padding;
 
-	// DRAW
-	target.draw(txt_title_);
-	target.draw(btn_start_);
+	elements_.at("start").setPosition(cursor);
+	cursor.y += elements_.at("start").getLocalBounds().size.y + padding;
 }
