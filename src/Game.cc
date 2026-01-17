@@ -4,7 +4,7 @@
 
 Game::Game()
 	: window_(sf::VideoMode({ 1536, 864 }), std::string(PROJECT_NAME)),
-	  state_manager_(StateManager::GetInstance())
+	  state_manager_(std::make_unique<StateManager>(window_))
 {
 	InitStates();
 }
@@ -44,8 +44,8 @@ void Game::Run()
 
 void Game::InitStates()
 {
-	state_manager_->AddState(StateID::kMainMenu, std::make_unique<MainMenuState>());
-	state_manager_->AddState(StateID::kSimulation, std::make_unique<SimulationState>());
+	state_manager_->AddState(StateID::kMainMenu, std::make_unique<MainMenuState>(state_manager_.get()));
+	state_manager_->AddState(StateID::kSimulation, std::make_unique<SimulationState>(state_manager_.get()));
 
 	state_manager_->ChangeState(StateID::kMainMenu);
 }

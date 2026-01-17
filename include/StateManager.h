@@ -13,17 +13,8 @@ enum StateID
 
 class StateManager
 {
-protected:
-	static StateManager* instance_;
-
 public:
-	static StateManager* GetInstance();				// SINGLETON CREATION
-	StateManager(StateManager&) = delete;			// SINGLETON CANNOT BE CLONED
-	void operator=(const StateManager&) = delete;	// SINGLETON CANNOT BE ASSIGNABLE
-
-	StateManager()
-		: active_state_(nullptr) {
-	}
+	StateManager(sf::RenderWindow& window);
 	~StateManager() = default;
 
 	// STATE MANAGER
@@ -35,7 +26,14 @@ public:
 	void Update(sf::Time delta);
 	void Render(sf::RenderTarget& target);
 
+	// RESOURCES
+	inline sf::Vector2f GetWindowSize() const { return sf::Vector2f(window_.getSize()); }
+	inline sf::Font& GetFont() { return font_; }
+
 private:
 	std::map<StateID, std::unique_ptr<GameState>> states_;
 	GameState* active_state_;
+
+	sf::RenderWindow& window_;
+	sf::Font font_;
 };

@@ -6,21 +6,17 @@
 void MainMenuState::Init()
 {
 	// FONT
-	if (!font_.openFromFile("res/OpenSans.ttf"))
-	{
-		std::cerr << "ERR: Font could not be loaded!\n";
-		return;
-	}
+	sf::Font& font = state_manager_->GetFont();
 
 	// TITLE TEXT
-	elements_.emplace("title", sf::Text(font_));
+	elements_.emplace("title", sf::Text(font));
 	elements_.at("title").setCharacterSize(100);
 	elements_.at("title").setStyle(sf::Text::Bold);
 	elements_.at("title").setFillColor(sf::Color::White);
 	elements_.at("title").setString(std::string(PROJECT_NAME));
 
 	// START BUTTON
-	elements_.emplace("start", sf::Text(font_));
+	elements_.emplace("start", sf::Text(font));
 	elements_.at("start").setCharacterSize(50);
 	elements_.at("start").setStyle(sf::Text::Regular);
 	elements_.at("start").setFillColor(sf::Color::White);
@@ -44,7 +40,7 @@ void MainMenuState::HandleInput(const sf::Event event, const sf::RenderWindow& w
 	{
 		if (btn_pressed->button == sf::Mouse::Button::Left &&
 			elements_.at("start").getGlobalBounds().contains(mouse_pos))
-			StateManager::GetInstance()->ChangeState(StateID::kSimulation);
+			state_manager_->ChangeState(StateID::kSimulation);
 	}
 }
 

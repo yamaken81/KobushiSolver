@@ -2,8 +2,8 @@
 
 #include "StateManager.h"
 
-SimulationState::SimulationState()
-	: font_(), txt_win_(font_), txt_gems_(font_), is_keypress_(false), win_state_(0)
+SimulationState::SimulationState(StateManager* state_manager)
+	: GameState(state_manager), is_keypress_(false), win_state_(0)
 {
 	level_ = std::make_unique<LevelMap>();
 }
@@ -11,21 +11,19 @@ SimulationState::SimulationState()
 void SimulationState::Init()
 {
 	// FONT
-	if (!font_.openFromFile("res/OpenSans.ttf"))
-	{
-		std::cerr << "ERR: Font could not be loaded!\n";
-		return;
-	}
+	sf::Font& font = state_manager_->GetFont();
 
 	// WIN TEXT
-	txt_win_.setCharacterSize(20);
-	txt_win_.setStyle(sf::Text::Bold);
-	txt_win_.setFillColor(sf::Color::White);
+	elements_.emplace("win", sf::Text(font));
+	elements_.at("win").setCharacterSize(20);
+	elements_.at("win").setStyle(sf::Text::Bold);
+	elements_.at("win").setFillColor(sf::Color::White);
 
 	// GEM TEXT
-	txt_gems_.setCharacterSize(20);
-	txt_gems_.setFillColor(sf::Color::White);
-	txt_gems_.setString(std::string("GEMS: 0"));
+	elements_.emplace("gems", sf::Text(font));
+	elements_.at("gems").setCharacterSize(20);
+	elements_.at("gems").setFillColor(sf::Color::White);
+	elements_.at("gems").setString(std::string("GEMS: 0"));
 
 	// LEVEL
 	is_keypress_ = false;
@@ -39,7 +37,7 @@ void SimulationState::HandleInput(const sf::Event event, const sf::RenderWindow&
 	{
 		if (key->code == sf::Keyboard::Key::Escape)
 		{
-			StateManager::GetInstance()->ChangeState(kMainMenu); // Go back to main menu
+			state_manager_->ChangeState(kMainMenu); // Go back to main menu
 			return;
 		}
 	}
@@ -73,7 +71,7 @@ void SimulationState::Update(const sf::Time& delta)
 		win_state_ = 0; // Player decides not to leave the level for whatever reason
 
 	// Update gem text
-	txt_gems_.setString("GEMS: " + std::to_string(player->GetGems()));
+	elements_.at("gems").setString("GEMS: " + std::to_string(player->GetGems()));
 }
 
 void SimulationState::Render(sf::RenderTarget& target)
@@ -84,27 +82,27 @@ void SimulationState::Render(sf::RenderTarget& target)
 
 	level_->Render(target, sf::Vector2f({ grid_origin_x, grid_origin_y }));
 
-	float wintxt_x = (target.getSize().x / 2.f) - (txt_win_.getLocalBounds().size.x / 2.f);
+	float wintxt_x = (target.getSize().x / 2.f) - (elements_.at("win").getLocalBounds().size.x / 2.f);
 	float wintxt_y = 5.f; // Tiny bit at the top of the window with a margin
-	txt_win_.setPosition({ wintxt_x, wintxt_y });
+	elements_.at("win").setPosition({wintxt_x, wintxt_y});
 
 	float gemtxt_hmargin = 150.f; // Horizontal spacing for gem text
 	float gemtxt_x = (grid_origin_x - gemtxt_hmargin);
 	float gemtxt_y = grid_origin_y;
-	txt_gems_.setPosition({ gemtxt_x, gemtxt_y });
+	elements_.at("gems").setPosition({gemtxt_x, gemtxt_y});
 
 	switch (win_state_)
 	{
 	case 1:
-		txt_win_.setString(std::string("LEVEL COMPLETE! Press Esc to exit to main menu."));
+		elements_.at("win").setString(std::string("LEVEL COMPLETE! Press Esc to exit to main menu."));
 		break;
 	case -1:
-		txt_win_.setString(std::string("GAME OVER! Press Esc to exit to main menu."));
+		elements_.at("win").setString(std::string("GAME OVER! Press Esc to exit to main menu."));
 		break;
 	default:
-		txt_win_.setString(std::string(""));
+		elements_.at("win").setString(std::string(""));
 	}
 
-	target.draw(txt_gems_);
-	target.draw(txt_win_);
+	target.draw(elements_.at("gems"));
+	target.draw(elements_.at("win"));
 }

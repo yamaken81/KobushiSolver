@@ -6,10 +6,12 @@
 
 #include <SFML/Graphics.hpp>
 
+#include <unordered_map>
+
 class SimulationState : public GameState
 {
 public:
-	SimulationState();
+	SimulationState(StateManager* state_manager);
 
 	void Init() override;
 	void HandleInput(const sf::Event event, const sf::RenderWindow& window) override;
@@ -21,9 +23,7 @@ private:
 	int win_state_;
 
 	// ELEMENTS
-	sf::Font font_;
-	sf::Text txt_win_;
-	sf::Text txt_gems_;
+	std::unordered_map<std::string, sf::Text> elements_;
 
 	std::unique_ptr<LevelMap> level_;
 };
