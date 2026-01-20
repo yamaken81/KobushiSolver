@@ -74,7 +74,13 @@ sf::Vector2i Enemy::ResolveCollisions(const sf::Vector2i& offs)
 	// Try first move
 	if (first_move.x != 0 || first_move.y != 0) {
 		sf::Vector2i dest = enemy_pos + first_move;
-		if (!level->DoesCollide(enemy_pos, dest)) return dest;
+		if (!level->DoesCollide(enemy_pos, dest))
+		{
+			DEBUG_LogMovement();
+			return dest;
+		}
+		else
+			DEBUG_LogCollision(dest);
 	}
 
 	// Try second move
@@ -98,4 +104,22 @@ void Enemy::Build()
 	}
 
 	SetShape(shape);
+}
+
+void Enemy::DEBUG_LogMovement()
+{
+	LevelMap* level = GetLevelMap();
+	const Tile* tile_at_enemy = level->GetTileAt(gridpos_);
+	std::cout <<
+		"ENEMY: [" << tile_at_enemy->GetGridPosition().x << "," << tile_at_enemy->GetGridPosition().y <<
+		"] Type: " << tile_at_enemy->GetType() <<
+		", Borders: " << tile_at_enemy->GetBorders()[0] << tile_at_enemy->GetBorders()[1] <<
+		tile_at_enemy->GetBorders()[2] << tile_at_enemy->GetBorders()[3] << "\n";
+}
+
+void Enemy::DEBUG_LogCollision(const sf::Vector2i& new_pos)
+{
+	LevelMap* level = GetLevelMap();
+	if (level->DoesCollide(gridpos_, new_pos))
+		std::cout << "ENEMY: Collision detected! Movement blocked.\n";
 }

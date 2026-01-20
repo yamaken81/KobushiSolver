@@ -131,6 +131,10 @@ void LevelMap::BuildFromFile(std::string path)
 				else
 					std::cerr << "ERR: Invalid number of tokens!\nLine: " << line << "\n";
 		}
+
+#ifdef _DEBUG
+		std::cout << "INFO: Map \"" << MAP_LOADED << "\" loaded.\n\n";
+#endif
 	}
 	else
 		std::cerr << "ERR: Could not open map file!";

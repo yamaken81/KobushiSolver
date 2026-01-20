@@ -92,8 +92,8 @@ void Player::HandleInput(const sf::Event event)
 			Layout();
 			level->SetEnemyTurn(true); // Set enemy turn to true after player moves
 		}
-		else
 #ifdef _DEBUG
+		else
 			DEBUG_LogCollision(new_pos);
 #endif
 	}
@@ -109,10 +109,9 @@ void Player::Build()
 void Player::DEBUG_LogMovement()
 {
 	LevelMap* level = GetLevelMap();
-	auto player_pos = GetGridPosition();
-	const Tile* tile_at_player = level->GetTileAt(player_pos);
+	const Tile* tile_at_player = level->GetTileAt(gridpos_);
 	std::cout <<
-		"[" << tile_at_player->GetGridPosition().x << "," << tile_at_player->GetGridPosition().y <<
+		"PLAYER: [" << tile_at_player->GetGridPosition().x << "," << tile_at_player->GetGridPosition().y <<
 		"] Type: " << tile_at_player->GetType() <<
 		", Borders: " << tile_at_player->GetBorders()[0] << tile_at_player->GetBorders()[1] <<
 		tile_at_player->GetBorders()[2] << tile_at_player->GetBorders()[3] << "\n";
@@ -121,6 +120,6 @@ void Player::DEBUG_LogMovement()
 void Player::DEBUG_LogCollision(const sf::Vector2i& new_pos)
 {
 	LevelMap* level = GetLevelMap();
-	if (level->DoesCollide(GetGridPosition(), new_pos))
-		std::cout << "Collision detected! Movement blocked.\n";
+	if (level->DoesCollide(gridpos_, new_pos))
+		std::cout << "PLAYER: Collision detected! Movement blocked.\n";
 }

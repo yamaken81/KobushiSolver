@@ -20,4 +20,7 @@ public:
 private:
 	sf::Clock moveclock_;
 	int moves_ = 0; // Number of moves made by the enemy
+
+	void DEBUG_LogMovement();
+	void DEBUG_LogCollision(const sf::Vector2i& new_pos);
 };
