@@ -137,13 +137,18 @@ void Tile::Layout()
 	sf::Vector2f pos = gridbounds + grid_offset;
 	rect_.setPosition(pos);
 
-	// THE BORDERS: This is disgusting but it works
-	border_array_[0].position = sf::Vector2f({ pos.x, pos.y });							// NW
-	border_array_[1].position = sf::Vector2f({ pos.x + TILE_SIZE, pos.y });				// NE
-	border_array_[2].position = sf::Vector2f({ pos.x + TILE_SIZE, pos.y });				// NE
-	border_array_[3].position = sf::Vector2f({ pos.x + TILE_SIZE, pos.y + TILE_SIZE });	// SE
-	border_array_[4].position = sf::Vector2f({ pos.x + TILE_SIZE, pos.y + TILE_SIZE });	// SE
-	border_array_[5].position = sf::Vector2f({ pos.x, pos.y + TILE_SIZE });				// SW
-	border_array_[6].position = sf::Vector2f({ pos.x, pos.y + TILE_SIZE });				// SW
-	border_array_[7].position = sf::Vector2f({ pos.x, pos.y });							// NW
+	// THE BORDERS
+	// Define the 4 corners clockwise; order as written.
+	sf::Vector2f corners[] = {
+		pos,										// NW = 0,0
+		{ pos.x + TILE_SIZE, pos.y },				// NE = S,0
+		{ pos.x + TILE_SIZE, pos.y + TILE_SIZE },	// SE = S,S
+		{ pos.x, pos.y + TILE_SIZE }				// SW = 0,S
+	};
+
+	// Connect borders and assign to vertex array
+	for (int i = 0; i < 4; ++i) {
+		border_array_[i * 2].position = corners[i];					// Start drawing at even indexes
+		border_array_[i * 2 + 1].position = corners[(i + 1) % 4];	// End drawing at next corner; Modulo makes last connect to first (3%4=3, 4%4=0)
+	}
 }
