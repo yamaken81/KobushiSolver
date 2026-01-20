@@ -136,6 +136,15 @@ void LevelMap::BuildFromFile(std::string path)
 		std::cerr << "ERR: Could not open map file!";
 }
 
+sf::Vector2f LevelMap::GetGridbounds() const
+{
+	sf::Vector2f window_size = window_.GetWindowSize();
+	sf::Vector2f center_offset = sf::Vector2f({ (TILE_SIZE * ROW_SIZE), (TILE_SIZE * COL_SIZE) });
+	sf::Vector2f gridbounds = (window_size - center_offset) / 2.0f;
+
+	return gridbounds;
+}
+
 Tile* LevelMap::GetTileAt(const sf::Vector2i& gridpos) const
 {
 	for (int i = 0; i < tiles_.size(); i++)
@@ -221,14 +230,14 @@ void LevelMap::AddEntity(const sf::Vector2i& gridpos, const EntityType& type)
 {
 	if (type == EntityType::kPlayer)
 	{
-		auto player = std::make_unique<Player>(Player(this, gridpos));
+		auto player = std::make_unique<Player>(this, gridpos);
 		player_ = player.get();
 		entities_.push_back(std::move(player));
 		return;
 	}
 	else
 	{
-		auto enemy = std::make_unique<Enemy>(Enemy(this, gridpos, type));
+		auto enemy = std::make_unique<Enemy>(this, gridpos, type);
 		entities_.push_back(std::move(enemy));
 		return;
 	}
@@ -262,13 +271,10 @@ void LevelMap::UpdateCollectible(const size_t& i)
 		std::cerr << "ERR: Could not get collectible at index " << i << "\n";
 }
 
-void LevelMap::HandleInput(const sf::Event event, const sf::RenderWindow& window)
+void LevelMap::HandleInput(const sf::Event event)
 {
 	for (const auto& ptr : entities_)
-		ptr->HandleInput(event, window);
-
-	for (const auto& ptr : blocks_)
-		ptr->HandleInput(event, window);
+		ptr->HandleInput(event);
 
 #ifdef _DEBUG
 	player_->DEBUG_LogMovement();
@@ -301,16 +307,16 @@ void LevelMap::Update(const sf::Time& delta)
 void LevelMap::Render(sf::RenderTarget& target, const sf::Vector2f& gridbounds)
 {
 	for (const auto& ptr : tiles_)
-		ptr->Render(target, gridbounds);
+		ptr->Render(target);
 
 	for (const auto& ptr : entities_)
-		ptr->Render(target, gridbounds);
+		ptr->Render(target);
 
 	for (const auto& ptr : blocks_)
-		ptr->Render(target, gridbounds);
+		ptr->Render(target);
 
 	for (const auto& ptr : collectibles_)
-		ptr->Render(target, gridbounds);
+		ptr->Render(target);
 }
 
 bool LevelMap::DoesCollide(const sf::Vector2i& origin, const sf::Vector2i& target) const

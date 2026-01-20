@@ -10,7 +10,6 @@ public:
 	Enemy(LevelMap* level, const sf::Vector2i& gridpos, const EntityType& type);
 
 	// ENTITY
-	void HandleInput(const sf::Event event, const sf::RenderWindow& window) override {};
 	void Update(const sf::Time& delta) override;
 
 	// HELPER

@@ -1,21 +1,18 @@
 #include "Collectible.h"
 
+#include "LevelMap.h"
+
 Collectible::Collectible(LevelMap* level, const sf::Vector2i& gridpos, const CollectibleType& type)
 	: GameObject(level, gridpos), type_(type), state_(0)
 {
 	Build();
+	Layout();
 }
 
-void Collectible::Render(sf::RenderTarget& target, const sf::Vector2f& gridbounds)
+void Collectible::Render(sf::RenderTarget& target)
 {
 	if (state_ == 0)
-	{
-		float xpos = gridbounds.x + (GetGridPosition().x + 0.5f) * TILE_SIZE;
-		float ypos = gridbounds.y + (GetGridPosition().y + 0.5f) * TILE_SIZE;
-		shape_.setPosition({ xpos, ypos });
-
 		target.draw(shape_);
-	}
 }
 
 void Collectible::Build()
@@ -37,4 +34,12 @@ void Collectible::Build()
 	}
 }
 
+void Collectible::Layout()
+{
+	sf::Vector2f gridbounds = level_->GetGridbounds();
 
+	sf::Vector2f grid_offset = (sf::Vector2f(gridpos_) + sf::Vector2f(0.5f, 0.5f)) * (float)(TILE_SIZE);
+	sf::Vector2f pos = gridbounds + grid_offset;
+
+	shape_.setPosition(pos);
+}

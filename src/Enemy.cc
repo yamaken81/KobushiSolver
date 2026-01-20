@@ -22,6 +22,7 @@ void Enemy::Update(const sf::Time& delta)
 			new_pos = ResolveCollisions(offs);
 
 			SetGridPosition(new_pos);
+			Layout();
 
 			switch (moves_)
 			{

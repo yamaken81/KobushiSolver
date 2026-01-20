@@ -20,11 +20,12 @@ public:
 	void SetShape(const sf::RectangleShape& shape) { shape_ = shape; }
 
 	// GAME OBJECT
-	virtual void HandleInput(const sf::Event event, const sf::RenderWindow& window) {};
+	virtual void HandleInput(const sf::Event event) {};
 	virtual void Update(const sf::Time& delta) {};
-	virtual void Render(sf::RenderTarget& target, const sf::Vector2f& gridbounds);
+	inline virtual void Render(sf::RenderTarget& target) { target.draw(shape_); };
 
 	virtual void Build();
+	void Layout();
 	
 private:
 	EntityType type_;

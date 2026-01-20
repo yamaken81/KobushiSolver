@@ -1,5 +1,6 @@
 #pragma once
 
+#include "StateManager.h"
 #include "Tile.h"
 #include "Block.h"
 #include "Collectible.h"
@@ -13,8 +14,8 @@ const std::string MAP_LOADED = "res/lv4.map";
 class LevelMap
 {
 public:
-	LevelMap()
-		: is_enemyturn(false), player_(nullptr) {}
+	LevelMap(WindowContext& window)
+		: is_enemyturn(false), player_(nullptr), window_(window) {}
 
 	// CONSTRUCTOR HELPERS
 	void Init();
@@ -22,8 +23,12 @@ public:
 	void BuildFromFile(std::string path);
 
 	// ACCESS
+	WindowContext& GetWindowContext() const { return window_; }
+	sf::Vector2f GetGridbounds() const;
+
 	bool IsEnemyTurn() const { return is_enemyturn; }
 	void SetEnemyTurn(bool flag) { is_enemyturn = flag; }
+
 	Tile* GetTileAt(const sf::Vector2i& gridpos) const;
 	Tile* GetTileAt(const size_t& i) const;
 	Player* GetPlayer() { return player_; }
@@ -44,7 +49,7 @@ public:
 	void UpdateCollectible(const size_t& i);
 
 	// GAME OBJECT
-	void HandleInput(const sf::Event event, const sf::RenderWindow& window);
+	void HandleInput(const sf::Event event);
 	void Update(const sf::Time& delta);
 	void Render(sf::RenderTarget& target, const sf::Vector2f& gridbounds);
 
@@ -53,6 +58,8 @@ public:
 	bool IsPlayerCaught() const;
 
 private:
+	WindowContext& window_;
+
 	bool is_enemyturn;
 
 	std::vector<std::unique_ptr<Tile>> tiles_;

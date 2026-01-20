@@ -3,7 +3,7 @@
 #include <iostream>
 
 
-StateManager::StateManager(sf::RenderWindow& window)
+StateManager::StateManager(WindowContext& window)
 	: window_(window), active_state_(nullptr)
 {
 	// Load font
@@ -29,10 +29,10 @@ void StateManager::ChangeState(const StateID id)
 		throw std::runtime_error("ERR: State being changed to doesn't exist.");
 }
 
-void StateManager::HandleInput(const sf::Event event, const sf::RenderWindow& window)
+void StateManager::HandleInput(const sf::Event event)
 {
 	if (active_state_)
-		active_state_->HandleInput(event, window);
+		active_state_->HandleInput(event);
 }
 
 void StateManager::Update(sf::Time delta)

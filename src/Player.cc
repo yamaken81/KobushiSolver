@@ -8,7 +8,27 @@ Player::Player(LevelMap* level, const sf::Vector2i& gridpos)
 	Build();
 }
 
-void Player::HandleInput(const sf::Event event, const sf::RenderWindow& window)
+void Player::Update(const sf::Time& delta)
+{
+	LevelMap* level = GetLevelMap();
+	Collectible* player_tile = level->GetCollectibleAt(GetGridPosition());
+
+	if (player_tile == nullptr)
+		return;
+
+	if (player_tile->GetType() == CollectibleType::kGem)
+	{
+		if (player_tile->GetState() == 0)
+		{
+			gems_++;
+			player_tile->SetState(1); // Collect the gem
+			level->UpdateCollectible(GetGridPosition());
+			std::cout << "Collected a gem!\n";
+		}
+	}
+}
+
+void Player::HandleInput(const sf::Event event)
 {
 	if (const auto* key = event.getIf<sf::Event::KeyPressed>())
 	{
@@ -62,38 +82,20 @@ void Player::HandleInput(const sf::Event event, const sf::RenderWindow& window)
 		else
 			is_blockpath_clear = true; // No block at the new position, so path is clear
 
+		// Check if all flags are set
 		if (in_row_bounds && in_col_bounds && no_collision && is_tile_passable && is_blockpath_clear)
 		{
 			if (block)
 				block->SetGridPosition(new_block_pos);
 
 			SetGridPosition(new_pos);
+			Layout();
 			level->SetEnemyTurn(true); // Set enemy turn to true after player moves
 		}
 		else
 #ifdef _DEBUG
 			DEBUG_LogCollision(new_pos);
 #endif
-	}
-}
-
-void Player::Update(const sf::Time& delta)
-{
-	LevelMap* level = GetLevelMap();
-	Collectible* player_tile = level->GetCollectibleAt(GetGridPosition());
-
-	if (player_tile == nullptr)
-		return;
-
-	if (player_tile->GetType() == CollectibleType::kGem)
-	{
-		if (player_tile->GetState() == 0)
-		{
-			gems_++;
-			player_tile->SetState(1); // Collect the gem
-			level->UpdateCollectible(GetGridPosition());
-			std::cout << "Collected a gem!\n";
-		}
 	}
 }
 

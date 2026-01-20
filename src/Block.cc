@@ -7,6 +7,7 @@ Block::Block(LevelMap* level, const sf::Vector2i& gridpos, const BlockType& type
 	  is_pushable_({ false, false, false, false })
 {
 	Build();
+	Layout();
 }
 
 void Block::Update(const sf::Time& delta)
@@ -48,15 +49,6 @@ void Block::Update(const sf::Time& delta)
 	}
 }
 
-void Block::Render(sf::RenderTarget& target, const sf::Vector2f& gridbounds)
-{
-	float xpos = gridbounds.x + (GetGridPosition().x * TILE_SIZE) + (TILE_SIZE / 5);
-	float ypos = gridbounds.y + (GetGridPosition().y * TILE_SIZE) + (TILE_SIZE / 5);
-	shape_.setPosition({ xpos, ypos });
-
-	target.draw(shape_);
-}
-
 void Block::Build()
 {
 	shape_.setSize({ (TILE_SIZE * 3 / 5), (TILE_SIZE * 3 / 5) });
@@ -69,4 +61,15 @@ void Block::Build()
 		shape_.setFillColor(sf::Color(221, 218, 208));
 		break;
 	}
+}
+
+void Block::Layout()
+{
+	sf::Vector2f gridbounds = level_->GetGridbounds();
+
+	sf::Vector2f size_offset = sf::Vector2f({ TILE_SIZE / 5, TILE_SIZE / 5 });
+	sf::Vector2f grid_offset = sf::Vector2f(gridpos_) * (float)TILE_SIZE;
+	sf::Vector2f pos = gridbounds + grid_offset + size_offset;
+
+	shape_.setPosition(pos);
 }

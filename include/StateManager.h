@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GameState.h"
+#include "WindowContext.h"
 
 #include <map>
 #include <memory>
@@ -14,7 +15,7 @@ enum StateID
 class StateManager
 {
 public:
-	StateManager(sf::RenderWindow& window);
+	StateManager(WindowContext& window);
 	~StateManager() = default;
 
 	// STATE MANAGER
@@ -22,18 +23,16 @@ public:
 	void ChangeState(const StateID id);
 
 	// GAME LOOP
-	void HandleInput(const sf::Event event, const sf::RenderWindow& window);
+	void HandleInput(const sf::Event event);
 	void Update(sf::Time delta);
 	void Render(sf::RenderTarget& target);
 
-	// RESOURCES
-	inline sf::Vector2f GetWindowSize() const { return sf::Vector2f(window_.getSize()); }
+	inline WindowContext& GetWindowContext() { return window_; }
 	inline sf::Font& GetFont() { return font_; }
-
 private:
 	std::map<StateID, std::unique_ptr<GameState>> states_;
 	GameState* active_state_;
 
-	sf::RenderWindow& window_;
+	WindowContext& window_;
 	sf::Font font_;
 };

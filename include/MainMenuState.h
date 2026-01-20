@@ -13,7 +13,7 @@ public:
 	~MainMenuState() override = default;
 
 	void Init() override;
-	void HandleInput(const sf::Event event, const sf::RenderWindow& window) override;
+	void HandleInput(const sf::Event event) override;
 	void Update(const sf::Time& delta) override {};
 	void Render(sf::RenderTarget& target) override;
 

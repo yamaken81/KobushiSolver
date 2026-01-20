@@ -11,10 +11,12 @@
 class SimulationState : public GameState
 {
 public:
-	SimulationState(StateManager* state_manager);
+	SimulationState(StateManager* state_manager)
+	  :	GameState(state_manager), is_keypress_(false), win_state_(0),
+		level_(std::make_unique<LevelMap>(state_manager->GetWindowContext())) {}
 
 	void Init() override;
-	void HandleInput(const sf::Event event, const sf::RenderWindow& window) override;
+	void HandleInput(const sf::Event event) override;
 	void Update(const sf::Time& delta) override;
 	void Render(sf::RenderTarget& target) override;
 
@@ -24,6 +26,7 @@ private:
 
 	// ELEMENTS
 	std::unordered_map<std::string, sf::Text> elements_;
-
 	std::unique_ptr<LevelMap> level_;
+
+	void LayoutElements();
 };

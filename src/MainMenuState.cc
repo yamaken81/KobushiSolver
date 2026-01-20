@@ -25,8 +25,9 @@ void MainMenuState::Init()
 	LayoutElements();
 }
 
-void MainMenuState::HandleInput(const sf::Event event, const sf::RenderWindow& window)
+void MainMenuState::HandleInput(const sf::Event event)
 {
+	auto& window = state_manager_->GetWindowContext().GetWindow();
 	sf::Vector2f mouse_pos = static_cast<sf::Vector2f>(sf::Mouse::getPosition(window));
 
 	// MOUSEOVER
@@ -57,7 +58,7 @@ void MainMenuState::LayoutElements()
 	sf::Vector2f cursor = margin;
 
 	// Set origins
-	elements_.at("title").setOrigin({0.f, 0.f});
+	elements_.at("title").setOrigin({ 0.f, 0.f });
 	elements_.at("start").setOrigin({ 0.f, 0.f });
 
 	elements_.at("title").setPosition(cursor);

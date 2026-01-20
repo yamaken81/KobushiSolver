@@ -38,7 +38,8 @@ public:
 	
 	// GAME OBJECT
 	void Update(const sf::Time& delta);
-	void Render(sf::RenderTarget& target, const sf::Vector2f& gridbounds);
+	void Render(sf::RenderTarget& target);
+	void Layout();
 
 private:
 	TileType type_;
