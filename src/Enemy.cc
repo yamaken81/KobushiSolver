@@ -66,34 +66,21 @@ sf::Vector2i Enemy::ResolveCollisions(const sf::Vector2i& offs)
 {
 	LevelMap* level = GetLevelMap();
 	const sf::Vector2i enemy_pos = GetGridPosition();
-	sf::Vector2i dest;
 	
-	if (offs.x != 0 && moves_ == 0)
-	{
-		dest = enemy_pos + sf::Vector2i({ offs.x, 0 });
-		if (!level->DoesCollide(enemy_pos, dest))
-			return dest;
-		
-		if (offs.y != 0)
-		{
-			dest = GetGridPosition() + sf::Vector2i({ 0, offs.y });
-			if (!level->DoesCollide(enemy_pos, dest))
-				return dest;
-		}
+	// First move has bias on horizontal movement, second on vertical.
+	sf::Vector2i first_move = (moves_ == 0) ? sf::Vector2i(offs.x, 0) : sf::Vector2i(0, offs.y);
+	sf::Vector2i second_move = (moves_ == 0) ? sf::Vector2i(0, offs.y) : sf::Vector2i(offs.x, 0);
+
+	// Try first move
+	if (first_move.x != 0 || first_move.y != 0) {
+		sf::Vector2i dest = enemy_pos + first_move;
+		if (!level->DoesCollide(enemy_pos, dest)) return dest;
 	}
 
-	if (offs.y != 0 && moves_ == 1)
-	{
-		dest = enemy_pos + sf::Vector2i({ 0, offs.y });
-		if (!level->DoesCollide(enemy_pos, dest))
-			return dest;
-
-		if (offs.x != 0)
-		{
-			dest = enemy_pos + sf::Vector2i({ offs.x, 0 });
-			if (!level->DoesCollide(enemy_pos, dest))
-				return dest;
-		}
+	// Try second move
+	if (second_move.x != 0 || second_move.y != 0) {
+		sf::Vector2i dest = enemy_pos + second_move;
+		if (!level->DoesCollide(enemy_pos, dest)) return dest;
 	}
 
 	return enemy_pos;
