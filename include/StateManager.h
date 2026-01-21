@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GameState.h"
+#include "WindowContext.h"
 
 #include <map>
 #include <memory>
@@ -13,17 +14,8 @@ enum StateID
 
 class StateManager
 {
-protected:
-	static StateManager* instance_;
-
 public:
-	static StateManager* GetInstance();				// SINGLETON CREATION
-	StateManager(StateManager&) = delete;			// SINGLETON CANNOT BE CLONED
-	void operator=(const StateManager&) = delete;	// SINGLETON CANNOT BE ASSIGNABLE
-
-	StateManager()
-		: active_state_(nullptr) {
-	}
+	StateManager(WindowContext& window);
 	~StateManager() = default;
 
 	// STATE MANAGER
@@ -31,11 +23,16 @@ public:
 	void ChangeState(const StateID id);
 
 	// GAME LOOP
-	void HandleInput(const sf::Event event, const sf::RenderWindow& window);
+	void HandleInput(const sf::Event event);
 	void Update(sf::Time delta);
 	void Render(sf::RenderTarget& target);
 
+	inline WindowContext& GetWindowContext() { return window_; }
+	inline sf::Font& GetFont() { return font_; }
 private:
 	std::map<StateID, std::unique_ptr<GameState>> states_;
 	GameState* active_state_;
+
+	WindowContext& window_;
+	sf::Font font_;
 };

@@ -22,7 +22,7 @@ public:
 	void SetLevelMap(LevelMap* level) { level_ = level; }
 	void SetGridPosition(sf::Vector2i gridpos) { gridpos_ = gridpos; }
 
-private:
+protected:
 	LevelMap* level_;
 	sf::Vector2i gridpos_;
 };

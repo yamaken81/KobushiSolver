@@ -14,7 +14,7 @@ endif()
 
 # Gather your source files (no need to list them manually every time)
 file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS
-    "${CMAKE_SOURCE_DIR}/src/*.cpp"
+    "${CMAKE_SOURCE_DIR}/src/*.cc"
     "${CMAKE_SOURCE_DIR}/include/*.h")
 
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})

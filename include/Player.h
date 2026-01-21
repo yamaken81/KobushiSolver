@@ -11,8 +11,8 @@ public:
 	int GetGems() const { return gems_; }
 
 	// ENTITY
-	void HandleInput(const sf::Event event, const sf::RenderWindow& window) override;
 	void Update(const sf::Time& delta) override;
+	void HandleInput(const sf::Event event);
 
 	// HELPER
 	void Build() override;

@@ -6,13 +6,17 @@
 
 #include <SFML/Graphics.hpp>
 
+#include <unordered_map>
+
 class SimulationState : public GameState
 {
 public:
-	SimulationState();
+	SimulationState(StateManager* state_manager)
+	  :	GameState(state_manager), is_keypress_(false), win_state_(0),
+		level_(std::make_unique<LevelMap>(state_manager->GetWindowContext())) {}
 
 	void Init() override;
-	void HandleInput(const sf::Event event, const sf::RenderWindow& window) override;
+	void HandleInput(const sf::Event event) override;
 	void Update(const sf::Time& delta) override;
 	void Render(sf::RenderTarget& target) override;
 
@@ -21,9 +25,8 @@ private:
 	int win_state_;
 
 	// ELEMENTS
-	sf::Font font_;
-	sf::Text txt_win_;
-	sf::Text txt_gems_;
-
+	std::unordered_map<std::string, sf::Text> elements_;
 	std::unique_ptr<LevelMap> level_;
+
+	void LayoutElements();
 };

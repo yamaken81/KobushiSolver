@@ -10,7 +10,6 @@ public:
 	Enemy(LevelMap* level, const sf::Vector2i& gridpos, const EntityType& type);
 
 	// ENTITY
-	void HandleInput(const sf::Event event, const sf::RenderWindow& window) override {};
 	void Update(const sf::Time& delta) override;
 
 	// HELPER
@@ -21,4 +20,7 @@ public:
 private:
 	sf::Clock moveclock_;
 	int moves_ = 0; // Number of moves made by the enemy
+
+	void DEBUG_LogMovement();
+	void DEBUG_LogCollision(const sf::Vector2i& new_pos);
 };

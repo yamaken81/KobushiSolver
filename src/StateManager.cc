@@ -2,16 +2,13 @@
 
 #include <iostream>
 
-// Singleton instance initialization
-StateManager* StateManager::instance_ = nullptr;
 
-StateManager* StateManager::GetInstance()
+StateManager::StateManager(WindowContext& window)
+	: window_(window), active_state_(nullptr)
 {
-	// Ensure that the singleton instance is created only once
-	if (instance_ == nullptr)
-		instance_ = new StateManager();
-
-	return instance_;
+	// Load font
+	if (!font_.openFromFile("res/OpenSans.ttf"))
+		throw std::runtime_error("ERR: Font could not be loaded\n");
 }
 
 void StateManager::AddState(const StateID id, std::unique_ptr<GameState> state)
@@ -29,13 +26,13 @@ void StateManager::ChangeState(const StateID id)
 		active_state_->Init();
 	}
 	else
-		std::cerr << "ERR: State being changed to doesn't exist.";
+		throw std::runtime_error("ERR: State being changed to doesn't exist.");
 }
 
-void StateManager::HandleInput(const sf::Event event, const sf::RenderWindow& window)
+void StateManager::HandleInput(const sf::Event event)
 {
 	if (active_state_)
-		active_state_->HandleInput(event, window);
+		active_state_->HandleInput(event);
 }
 
 void StateManager::Update(sf::Time delta)

@@ -4,6 +4,14 @@
 #include <fstream>
 #include <regex>
 
+// Helper enum for collision detection.
+enum class Direction { North = 0, East = 1, South = 2, West = 3 };
+
+Direction GetOpposite(Direction d)
+{
+	return static_cast<Direction>((static_cast<int>(d) + 2) % 4);
+}
+
 void LevelMap::Init()
 {
 	// RESET LEVEL MAP
@@ -49,91 +57,84 @@ void LevelMap::BuildAsDebug()
 
 void LevelMap::BuildFromFile(std::string path)
 {
+	std::ifstream ifs(path);
+	if (!ifs.is_open()) {
+		std::cerr << "ERR: Could not open map file!";
+		return;
+	}
+
 	std::regex regex(R"(\[(\d+),(\d+)\]\s+(\d+)\s+(\d+)\s*(\w*)\s*(\d*))");
 	std::smatch match;
+	std::string line;
 
-	std::ifstream ifs;
-	ifs.open(path);
-	if (ifs.is_open())
-	{
-		// Get line from file contents
-		std::string line;
-		while (std::getline(ifs, line, '\n'))
-		{
-			// Create match object to parse
-			if (std::regex_match(line, match, regex))
-				if (match.size() == 7)
-				{
-					try
-					{
-						// Set coordinates
-						int x(std::stoi(match[1].str()));
-						int y(std::stoi(match[2].str()));
+	while (std::getline(ifs, line)) {
+		// Guard clause: skip empty/whitespace lines
+		if (line.empty() || std::all_of(line.begin(), line.end(), isspace)) {
+			continue;
+		}
 
-						// Set TileType
-						TileType tile(static_cast<TileType>(std::stoi(match[4].str())));
+		// Guard clause: regex match integrity
+		if (!std::regex_match(line, match, regex) || match.size() != 7) {
+			std::cerr << "ERR: Invalid format! Line: " << line << "\n";
+			continue;
+		}
 
-						// Set walls
-						std::vector<bool> borders(4);
-						for (size_t i = 0; i < match[3].str().length(); i++)
-						{
-							char c = match[3].str()[i];
-							if (c == '1')
-								borders[i] = true;
-							else if (c == '0')
-								borders[i] = false;
-							else
-							{
-								borders[i] = false;
-								std::cerr << "ERR: Invalid wall bit!\nLine: " << line << "\n";
-							}
-						}
-						
-						// Update Tile
-						if (Tile* ptr = GetTileAt({ x, y }))
-						{
-							ptr->SetType(tile);
-							ptr->SetBorders(borders);
-						}
-						else
-							std::cerr << "ERR: IT'S NOT WORKING.\n";
+		try {
+			// Extract data from regex match
+			int x = std::stoi(match[1].str());
+			int y = std::stoi(match[2].str());
+			std::string wall_mask = match[3].str();
+			TileType tile_type = static_cast<TileType>(std::stoi(match[4].str()));
 
-						// Add entities and collectibles
-						if (match[5].str() == "Entity")
-						{
-							if (match[6].str() == "00")
-								AddEntity({ x, y }, EntityType::kPlayer);
-							else
-							{
-								EntityType entity(static_cast<EntityType>(std::stoi(match[6].str())));
-								AddEntity({ x, y }, entity);
-							}
-						}
-						else if (match[5].str() == "Block")
-						{
-							BlockType block(static_cast<BlockType>(std::stoi(match[6].str())));
-							AddBlock({ x, y }, block);
-						}
+			// Guard clause: pointer check
+			Tile* ptr = GetTileAt({ x, y });
+			if (!ptr) {
+				std::cerr << "ERR: Tile OOB at " << x << "," << y << "\n";
+				continue;
+			}
 
-						else if (match[5].str() == "Collectible")
-						{
-							CollectibleType coll(static_cast<CollectibleType>(std::stoi(match[6].str())));
-							AddCollectible({ x, y }, coll);
-						}
-					}
-					catch (const std::invalid_argument& e) {
-						std::cerr << "ERR: Could not cast coordinate to int!\nLine: " << line << "\nTraceback: " << e.what() << "\n";
-					}
-					catch (const std::out_of_range& e) {
-						std::cerr << "ERR: Coordinate is out of data type range!\nLine: " << line << "\nTraceback: " << e.what() << "\n";
-					}
-				}
-				else
-					std::cerr << "ERR: Invalid number of tokens!\nLine: " << line << "\n";
+			// Handle borders
+			std::vector<bool> borders(4, false);
+			for (size_t i = 0; i < 4 && i < wall_mask.length(); ++i) {
+				borders[i] = (wall_mask[i] == '1');	// Return true if char is '1'. True means a wall exists on that side.
+			}
+
+			ptr->SetType(tile_type);
+			ptr->SetBorders(borders);
+
+			// Populate level with entities/blocks/collectibles
+			std::string category = match[5].str();
+			std::string sub_type = match[6].str();
+
+			// Skip if no entity/block
+			if (category.empty()) continue;
+
+			if (category == "Entity") {
+				// Check for player "00" or parse ID
+				EntityType entity_type = (sub_type == "00") ? EntityType::kPlayer : static_cast<EntityType>(std::stoi(sub_type));
+				AddEntity({ x, y }, entity_type);
+			}
+			else if (category == "Block")
+				AddBlock({ x, y }, static_cast<BlockType>(std::stoi(sub_type)));
+			else if (category == "Collectible")
+				AddCollectible({ x, y }, static_cast<CollectibleType>(std::stoi(sub_type)));
+		}
+		catch (const std::exception& e) {
+			std::cerr << "ERR: Parsing failed: " << e.what() << " | Line: " << line << "\n";
 		}
 	}
-	else
-		std::cerr << "ERR: Could not open map file!";
+#ifdef _DEBUG
+	std::cerr << "INFO: Map \"" << MAP_LOADED << "\" loaded.\n\n";
+#endif
+}
+
+sf::Vector2f LevelMap::GetGridbounds() const
+{
+	sf::Vector2f window_size = window_.GetWindowSize();
+	sf::Vector2f center_offset = sf::Vector2f({ (TILE_SIZE * ROW_SIZE), (TILE_SIZE * COL_SIZE) });
+	sf::Vector2f gridbounds = (window_size - center_offset) / 2.0f;
+
+	return gridbounds;
 }
 
 Tile* LevelMap::GetTileAt(const sf::Vector2i& gridpos) const
@@ -221,14 +222,14 @@ void LevelMap::AddEntity(const sf::Vector2i& gridpos, const EntityType& type)
 {
 	if (type == EntityType::kPlayer)
 	{
-		auto player = std::make_unique<Player>(Player(this, gridpos));
+		auto player = std::make_unique<Player>(this, gridpos);
 		player_ = player.get();
 		entities_.push_back(std::move(player));
 		return;
 	}
 	else
 	{
-		auto enemy = std::make_unique<Enemy>(Enemy(this, gridpos, type));
+		auto enemy = std::make_unique<Enemy>(this, gridpos, type);
 		entities_.push_back(std::move(enemy));
 		return;
 	}
@@ -262,13 +263,10 @@ void LevelMap::UpdateCollectible(const size_t& i)
 		std::cerr << "ERR: Could not get collectible at index " << i << "\n";
 }
 
-void LevelMap::HandleInput(const sf::Event event, const sf::RenderWindow& window)
+void LevelMap::HandleInput(const sf::Event event)
 {
 	for (const auto& ptr : entities_)
-		ptr->HandleInput(event, window);
-
-	for (const auto& ptr : blocks_)
-		ptr->HandleInput(event, window);
+		ptr->HandleInput(event);
 
 #ifdef _DEBUG
 	player_->DEBUG_LogMovement();
@@ -301,65 +299,49 @@ void LevelMap::Update(const sf::Time& delta)
 void LevelMap::Render(sf::RenderTarget& target, const sf::Vector2f& gridbounds)
 {
 	for (const auto& ptr : tiles_)
-		ptr->Render(target, gridbounds);
+		ptr->Render(target);
 
 	for (const auto& ptr : entities_)
-		ptr->Render(target, gridbounds);
+		ptr->Render(target);
 
 	for (const auto& ptr : blocks_)
-		ptr->Render(target, gridbounds);
+		ptr->Render(target);
 
 	for (const auto& ptr : collectibles_)
-		ptr->Render(target, gridbounds);
+		ptr->Render(target);
 }
 
 bool LevelMap::DoesCollide(const sf::Vector2i& origin, const sf::Vector2i& target) const
 {
-	if (origin.x < 0 || origin.x >= COL_SIZE ||
-		origin.y < 0 || origin.y >= ROW_SIZE ||
-		target.x < 0 || target.x >= COL_SIZE ||
-		target.y < 0 || target.y >= ROW_SIZE)
-		return true; // Out of bounds is considered a collision
+	// Helper: Check if out of bounds
+	auto is_oob = [](const sf::Vector2i& p) {
+		return p.x < 0 || p.x >= COL_SIZE || p.y < 0 || p.y >= ROW_SIZE; };
 
-	int x_diff = target.x - origin.x;
-	int y_diff = target.y - origin.y;
+	if (is_oob(origin) || is_oob(target)) return true;
 
-	std::vector<bool> target_borders = GetTileAt(target)->GetBorders();
-	std::vector<bool> origin_borders = GetTileAt(origin)->GetBorders();
+	// Determine direction
+	sf::Vector2i diff = target - origin;
+	Direction dir;
 
-	if (target_borders.empty() || origin_borders.empty())
-	{
-		std::cerr << "ERR: Borders are empty!\n";
-		return true;
-	}
+	if (diff.x > 0) dir = Direction::East;
+	else if (diff.x < 0) dir = Direction::West;
+	else if (diff.y > 0) dir = Direction::South;
+	else if (diff.y < 0) dir = Direction::North;
+	else return true; // No movement
 
-	if (target_borders.size() != 4 || origin_borders.size() != 4)
-	{
-		std::cerr << "ERR: Borders size mismatch! Expected size 4, got " << target_borders.size() << " and " << origin_borders.size() << "\n";
-		return true;
-	}
+	// Get tile data
+	const auto& origin_borders = GetTileAt(origin)->GetBorders();
+	const auto& target_borders = GetTileAt(target)->GetBorders();
 
-	if (x_diff == 0 && y_diff == 0)
-	{
-		std::cerr << "ERR: No movement detected!\n";
-		return true;
-	}
-	else if (x_diff != 0)
-	{
-		if (x_diff > 0)		// Player moved right
-			return target_borders[3] && origin_borders[1];	// Target's WEST and Origin's EAST
-		else if (x_diff < 0)	// Player moved left
-			return target_borders[1] && origin_borders[3];	// Target's EAST and Origin's WEST
-	}
-	else if (y_diff != 0)
-	{
-		if (y_diff > 0)		// Player moved down
-			return target_borders[0] && origin_borders[2];	// Target's NORTH and Origin's SOUTH
-		else if (y_diff < 0)	// Player moved up
-			return target_borders[2] && origin_borders[0];	// Target's SOUTH and Origin's NORTH
-	}
-	
-	return false; // DoesCollide == false; Movement allowed
+	// Guard clause: border data integrity
+	if (origin_borders.size() < 4 || target_borders.size() < 4) return true;
+
+	// If border exists (true), can't leave/enter (false)
+	bool can_leave = !origin_borders[static_cast<int>(dir)];
+	bool can_enter = !target_borders[static_cast<int>(GetOpposite(dir))];
+
+	// If can't leave/enter (false), collision occurs (true)
+	return !can_leave || !can_enter;
 }
 
 bool LevelMap::IsPlayerCaught() const

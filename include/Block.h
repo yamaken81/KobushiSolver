@@ -25,11 +25,10 @@ public:
 	void SetState(BlockState state) { state_ = state; }
 
 	// GAME OBJECT
-	void HandleInput(const sf::Event event, const sf::RenderWindow& window) {};
 	void Update(const sf::Time& delta);
-	void Render(sf::RenderTarget& target, const sf::Vector2f& gridbounds);
-
+	void Render(sf::RenderTarget& target) { target.draw(shape_); }
 	void Build();
+	void Layout();
 
 private:
 	BlockType type_;

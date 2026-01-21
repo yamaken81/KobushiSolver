@@ -21,6 +21,7 @@ Tile::Tile(LevelMap* level, const sf::Vector2i& gridpos, const TileType& type)
 
 	SetType();
 	SetBorders();
+	Layout();
 }
 
 void Tile::SetType(const TileType& type)
@@ -109,10 +110,10 @@ void Tile::Update(const sf::Time& delta)
 
 	// IDLE/ACTIVE CHECK
 	if (state_ == TileState::kIdle && 
-		player->GetGridPosition() == GetGridPosition())
+		player->GetGridPosition() == gridpos_)
 		state_ = TileState::kActive;
 	else if (state_ == TileState::kActive &&
-		player->GetGridPosition() != GetGridPosition())
+		player->GetGridPosition() != gridpos_)
 	{
 		if (type_ == TileType::kWaterSnare)
 			SetType(TileType::kWater);
@@ -121,24 +122,33 @@ void Tile::Update(const sf::Time& delta)
 	}
 }
 
-void Tile::Render(sf::RenderTarget& target, const sf::Vector2f& gridbounds)
+void Tile::Render(sf::RenderTarget& target)
 {
-	// THE RECTANGLE
-	float xpos = gridbounds.x + (GetGridPosition().x * TILE_SIZE);
-	float ypos = gridbounds.y + (GetGridPosition().y * TILE_SIZE);
-	rect_.setPosition({ xpos, ypos });
-
-	border_array_[0].position = sf::Vector2f({ xpos, ypos });							// NW
-	border_array_[1].position = sf::Vector2f({ xpos + TILE_SIZE, ypos });				// NE
-	border_array_[2].position = sf::Vector2f({ xpos + TILE_SIZE, ypos });				// NE
-	border_array_[3].position = sf::Vector2f({ xpos + TILE_SIZE, ypos + TILE_SIZE });	// SE
-	border_array_[4].position = sf::Vector2f({ xpos + TILE_SIZE, ypos + TILE_SIZE });	// SE
-	border_array_[5].position = sf::Vector2f({ xpos, ypos + TILE_SIZE });				// SW
-	border_array_[6].position = sf::Vector2f({ xpos, ypos + TILE_SIZE });				// SW
-	border_array_[7].position = sf::Vector2f({ xpos, ypos });							// NW
-
-	// BORDERS
 	target.draw(rect_);
 	target.draw(border_array_);
 }
 
+void Tile::Layout()
+{
+	// THE RECTANGLE
+	sf::Vector2f gridbounds = level_->GetGridbounds();
+
+	sf::Vector2f grid_offset = sf::Vector2f(gridpos_ * TILE_SIZE);
+	sf::Vector2f pos = gridbounds + grid_offset;
+	rect_.setPosition(pos);
+
+	// THE BORDERS
+	// Define the 4 corners clockwise; order as written.
+	sf::Vector2f corners[] = {
+		pos,										// NW = 0,0
+		{ pos.x + TILE_SIZE, pos.y },				// NE = S,0
+		{ pos.x + TILE_SIZE, pos.y + TILE_SIZE },	// SE = S,S
+		{ pos.x, pos.y + TILE_SIZE }				// SW = 0,S
+	};
+
+	// Connect borders and assign to vertex array
+	for (int i = 0; i < 4; ++i) {
+		border_array_[i * 2].position = corners[i];					// Start drawing at even indexes
+		border_array_[i * 2 + 1].position = corners[(i + 1) % 4];	// End drawing at next corner; Modulo makes last connect to first (3%4=3, 4%4=0)
+	}
+}

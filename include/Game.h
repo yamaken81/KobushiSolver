@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "StateManager.h"
+#include "WindowContext.h"
 
 class Game
 {
@@ -13,9 +14,10 @@ public:
 	void Run();
 
 private:
-	sf::RenderWindow window_;
+	std::unique_ptr<StateManager> state_manager_;
+	WindowContext window_;
+
 	sf::Clock clock_;
-	StateManager* gsmanager_;
 
 	void InitStates();
 };

@@ -8,7 +8,27 @@ Player::Player(LevelMap* level, const sf::Vector2i& gridpos)
 	Build();
 }
 
-void Player::HandleInput(const sf::Event event, const sf::RenderWindow& window)
+void Player::Update(const sf::Time& delta)
+{
+	LevelMap* level = GetLevelMap();
+	Collectible* player_tile = level->GetCollectibleAt(GetGridPosition());
+
+	if (player_tile == nullptr)
+		return;
+
+	if (player_tile->GetType() == CollectibleType::kGem)
+	{
+		if (player_tile->GetState() == 0)
+		{
+			gems_++;
+			player_tile->SetState(1); // Collect the gem
+			level->UpdateCollectible(GetGridPosition());
+			std::cout << "Collected a gem!\n";
+		}
+	}
+}
+
+void Player::HandleInput(const sf::Event event)
 {
 	if (const auto* key = event.getIf<sf::Event::KeyPressed>())
 	{
@@ -62,38 +82,20 @@ void Player::HandleInput(const sf::Event event, const sf::RenderWindow& window)
 		else
 			is_blockpath_clear = true; // No block at the new position, so path is clear
 
+		// Check if all flags are set
 		if (in_row_bounds && in_col_bounds && no_collision && is_tile_passable && is_blockpath_clear)
 		{
 			if (block)
 				block->SetGridPosition(new_block_pos);
 
 			SetGridPosition(new_pos);
+			Layout();
 			level->SetEnemyTurn(true); // Set enemy turn to true after player moves
 		}
-		else
 #ifdef _DEBUG
+		else
 			DEBUG_LogCollision(new_pos);
 #endif
-	}
-}
-
-void Player::Update(const sf::Time& delta)
-{
-	LevelMap* level = GetLevelMap();
-	Collectible* player_tile = level->GetCollectibleAt(GetGridPosition());
-
-	if (player_tile == nullptr)
-		return;
-
-	if (player_tile->GetType() == CollectibleType::kGem)
-	{
-		if (player_tile->GetState() == 0)
-		{
-			gems_++;
-			player_tile->SetState(1); // Collect the gem
-			level->UpdateCollectible(GetGridPosition());
-			std::cout << "Collected a gem!\n";
-		}
 	}
 }
 
@@ -107,10 +109,9 @@ void Player::Build()
 void Player::DEBUG_LogMovement()
 {
 	LevelMap* level = GetLevelMap();
-	auto player_pos = GetGridPosition();
-	const Tile* tile_at_player = level->GetTileAt(player_pos);
+	const Tile* tile_at_player = level->GetTileAt(gridpos_);
 	std::cout <<
-		"[" << tile_at_player->GetGridPosition().x << "," << tile_at_player->GetGridPosition().y <<
+		"PLAYER: [" << tile_at_player->GetGridPosition().x << "," << tile_at_player->GetGridPosition().y <<
 		"] Type: " << tile_at_player->GetType() <<
 		", Borders: " << tile_at_player->GetBorders()[0] << tile_at_player->GetBorders()[1] <<
 		tile_at_player->GetBorders()[2] << tile_at_player->GetBorders()[3] << "\n";
@@ -119,6 +120,6 @@ void Player::DEBUG_LogMovement()
 void Player::DEBUG_LogCollision(const sf::Vector2i& new_pos)
 {
 	LevelMap* level = GetLevelMap();
-	if (level->DoesCollide(GetGridPosition(), new_pos))
-		std::cout << "Collision detected! Movement blocked.\n";
+	if (level->DoesCollide(gridpos_, new_pos))
+		std::cout << "PLAYER: Collision detected! Movement blocked.\n";
 }
