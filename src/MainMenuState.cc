@@ -43,6 +43,13 @@ void MainMenuState::HandleInput(const sf::Event event)
 			elements_.at("start").getGlobalBounds().contains(mouse_pos))
 			state_manager_->ChangeState(StateID::kSimulation);
 	}
+
+	if (const auto* key_pressed = event.getIf<sf::Event::KeyPressed>())
+	{
+		if (key_pressed->code == sf::Keyboard::Key::Enter ||
+			key_pressed->code == sf::Keyboard::Key::Space)
+			state_manager_->ChangeState(StateID::kSimulation);
+	}
 }
 
 void MainMenuState::Render(sf::RenderTarget& target)
