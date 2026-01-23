@@ -29,10 +29,14 @@ public:
 
 	inline WindowContext& GetWindowContext() { return window_; }
 	inline sf::Font& GetFont() { return font_; }
+	inline int GetCurrentLevel() const { return current_level_; }
+	inline void SetCurrentLevel(int level) { current_level_ = level; }
 private:
 	std::map<StateID, std::unique_ptr<GameState>> states_;
 	GameState* active_state_;
 
 	WindowContext& window_;
 	sf::Font font_;
+
+	int current_level_;
 };
