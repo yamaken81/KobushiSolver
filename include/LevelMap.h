@@ -34,6 +34,7 @@ public:
 	Player* GetPlayer() { return player_; }
 	Entity* GetEntityAt(const sf::Vector2i& gridpos);
 	Entity* GetEntityAt(const size_t& i);
+	bool EnemiesExist() const { return entities_.size() > 1; }
 	Block* GetBlockAt(const sf::Vector2i& gridpos);
 	Block* GetBlockAt(const size_t& i);
 	Collectible* GetCollectibleAt(const sf::Vector2i& gridpos);

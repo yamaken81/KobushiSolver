@@ -41,7 +41,8 @@ void SimulationState::HandleInput(const sf::Event event)
 		}
 	}
 
-	if (event.getIf<sf::Event::KeyPressed>() && !is_keypress_ && !level_->IsEnemyTurn() && !win_state_) // to prevent multiple key presses from stacking
+	bool enemy_turn = level_->IsEnemyTurn() && level_->EnemiesExist();
+	if (event.getIf<sf::Event::KeyPressed>() && !is_keypress_ && !enemy_turn && !win_state_) // to prevent multiple key presses from stacking
 	{
 		// Handle input for the level
 		level_->HandleInput(event);

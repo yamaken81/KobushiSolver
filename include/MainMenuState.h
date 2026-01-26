@@ -6,13 +6,14 @@
 #include <unordered_map>
 
 constexpr std::string_view PROJECT_NAME = "Kobushi Solver";
+constexpr int DEFAULT_LEVEL = 3;
 
 constexpr std::array<int, 3> LEVELS = { 1, 3, 4 };
 
 class MainMenuState : public GameState
 {
 public:
-	MainMenuState(StateManager* state_manager) : GameState(state_manager), selected_level_(4) {}
+	MainMenuState(StateManager* state_manager) : GameState(state_manager), selected_level_(DEFAULT_LEVEL) {}
 	~MainMenuState() override = default;
 
 	void Init() override;

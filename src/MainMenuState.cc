@@ -27,7 +27,7 @@ void MainMenuState::Init()
 
 	// LEVEL SELECTOR
 	elements_.at("level").setCharacterSize(30);
-	elements_.at("level").setString("Level: 4");
+	elements_.at("level").setString("Level: " + std::to_string(DEFAULT_LEVEL));
 
 	elements_.at("next_lv").setCharacterSize(30);
 	elements_.at("next_lv").setString("Next");
