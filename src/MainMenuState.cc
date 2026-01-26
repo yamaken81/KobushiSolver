@@ -49,8 +49,7 @@ void MainMenuState::HandleInput(const sf::Event event)
 
 	// MOUSEOVER
 	const std::array<std::string, 3> buttons = { "start", "next_lv", "prev_lv" };
-	for (auto& [key, element] : elements_)
-	{
+	for (auto& [key, element] : elements_) {
 		if (std::find(buttons.begin(), buttons.end(), key) != buttons.end())
 			if (element.getGlobalBounds().contains(mouse_pos))
 				element.setStyle(sf::Text::Bold);
@@ -59,8 +58,7 @@ void MainMenuState::HandleInput(const sf::Event event)
 	}
 	
 	// MOUSE BUTTON
-	if (const auto* btn_pressed = event.getIf<sf::Event::MouseButtonPressed>())
-	{
+	if (const auto* btn_pressed = event.getIf<sf::Event::MouseButtonPressed>()) {
 		bool left_clicked = btn_pressed->button == sf::Mouse::Button::Left;
 		bool start_hovered = elements_.at("start").getGlobalBounds().contains(mouse_pos);
 		bool next_hovered = elements_.at("next_lv").getGlobalBounds().contains(mouse_pos);
@@ -71,14 +69,15 @@ void MainMenuState::HandleInput(const sf::Event event)
 				ChangeLevel(1);
 			else if (prev_hovered)
 				ChangeLevel(-1);
-			else if (start_hovered)
+			else if (start_hovered) {
+				state_manager_->SetCurrentLevel(selected_level_);
 				state_manager_->ChangeState(StateID::kSimulation);
+			}
 		}
 	}
 
 	// KEYBOARD
-	if (const auto* key = event.getIf<sf::Event::KeyPressed>())
-	{
+	if (const auto* key = event.getIf<sf::Event::KeyPressed>()) {
 		switch (key->code) {
 		case sf::Keyboard::Key::Right:	ChangeLevel(1);		break;
 		case sf::Keyboard::Key::Left:	ChangeLevel(-1);	break;
@@ -125,8 +124,7 @@ void MainMenuState::ChangeLevel(int offset)
 	if (offset > 0) {
 		selected_level_ = (selected_level_ % 4) + 1;						// Cycle forwards (i.e. 4 -> 1)
 		if (selected_level_ == 2) selected_level_ = 3;						// COMPROMISE: Skip level 2
-	}
-	else {
+	} else {
 		selected_level_ = (selected_level_ == 1) ? 4 : selected_level_ - 1;	// Cycle backwards (i.e. 1 -> 4)
 		if (selected_level_ == 2) selected_level_ = 1;						// COMPROMISE: Skip level 2
 	}

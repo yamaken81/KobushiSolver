@@ -12,7 +12,7 @@ Direction GetOpposite(Direction d)
 	return static_cast<Direction>((static_cast<int>(d) + 2) % 4);
 }
 
-void LevelMap::Init()
+void LevelMap::Init(int level)
 {
 	// RESET LEVEL MAP
 	tiles_.clear();
@@ -29,7 +29,8 @@ void LevelMap::Init()
 			tiles_.push_back(std::make_unique<Tile>(tile));
 		}
 
-	BuildFromFile(MAP_LOADED);
+	std::string path = "res/lv" + std::to_string(level) + ".map";
+	BuildFromFile(path);
 	// BuildAsDebug(); // Uncomment this line to build a debug map
 }
 

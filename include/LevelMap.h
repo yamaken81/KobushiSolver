@@ -18,7 +18,7 @@ public:
 		: is_enemyturn(false), player_(nullptr), window_(window) {}
 
 	// CONSTRUCTOR HELPERS
-	void Init();
+	void Init(int level);
 	void BuildAsDebug();
 	void BuildFromFile(std::string path);
 

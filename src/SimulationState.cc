@@ -22,7 +22,7 @@ void SimulationState::Init()
 	// LEVEL
 	is_keypress_ = false;
 	win_state_ = 0;
-	level_->Init();
+	level_->Init(state_manager_->GetCurrentLevel());
 
 	LayoutElements();
 }
