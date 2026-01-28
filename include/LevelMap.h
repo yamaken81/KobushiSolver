@@ -18,7 +18,7 @@ public:
 		: is_enemyturn(false), player_(nullptr), window_(window) {}
 
 	// CONSTRUCTOR HELPERS
-	void Init();
+	void Init(int level);
 	void BuildAsDebug();
 	void BuildFromFile(std::string path);
 
@@ -34,6 +34,7 @@ public:
 	Player* GetPlayer() { return player_; }
 	Entity* GetEntityAt(const sf::Vector2i& gridpos);
 	Entity* GetEntityAt(const size_t& i);
+	bool EnemiesExist() const { return entities_.size() > 1; }
 	Block* GetBlockAt(const sf::Vector2i& gridpos);
 	Block* GetBlockAt(const size_t& i);
 	Collectible* GetCollectibleAt(const sf::Vector2i& gridpos);
