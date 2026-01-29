@@ -1,23 +1,24 @@
 #include "EnemyAI.h"
 
 #include <iostream>
+#include <format>
 
 #include "LevelMap.h"
 
-void DEBUG_LogMovement(LevelMap* level, sf::Vector2i gridpos)
+void DEBUG_LogMovement(LevelMap* level, sf::Vector2i gridpos, std::string enemystr)
 {
 	const Tile* tile_at_enemy = level->GetTileAt(gridpos);
-	std::cout <<
-		"ENEMY: [" << tile_at_enemy->GetGridPosition().x << "," << tile_at_enemy->GetGridPosition().y <<
+	std::cout << enemystr <<
+		": [" << tile_at_enemy->GetGridPosition().x << "," << tile_at_enemy->GetGridPosition().y <<
 		"] Type: " << tile_at_enemy->GetType() <<
 		", Borders: " << tile_at_enemy->GetBorders()[0] << tile_at_enemy->GetBorders()[1] <<
 		tile_at_enemy->GetBorders()[2] << tile_at_enemy->GetBorders()[3] << "\n";
 }
 
-void DEBUG_LogCollision(LevelMap* level, sf::Vector2i gridpos, sf::Vector2i new_pos)
+void DEBUG_LogCollision(LevelMap* level, sf::Vector2i gridpos, sf::Vector2i new_pos, std::string enemystr)
 {
 	if (level->DoesCollide(gridpos, new_pos))
-		std::cout << "ENEMY: Collision detected! Movement blocked.\n";
+		std::cout << enemystr << ": Collision detected! Movement blocked.\n";
 }
 
 void EnemyAI::TakeTurn()
@@ -81,12 +82,12 @@ sf::Vector2i DevilbotAI::FindPath()
 		dest = enemy_pos + offs; // Add offset to current position
 
 		if (!level_->DoesCollide(enemy_pos, dest)) {
-			DEBUG_LogMovement(level_, enemy_pos);
+			DEBUG_LogMovement(level_, enemy_pos, std::format("DB{:02}", self_->GetID()));
 			return dest;
 		}
 	}
 
 	// Collision detected
-	DEBUG_LogCollision(level_, enemy_pos, dest);
+	DEBUG_LogCollision(level_, enemy_pos, dest, std::format("DB{:02}", self_->GetID()));
 	return enemy_pos;
 }

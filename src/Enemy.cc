@@ -4,8 +4,10 @@
 
 #include "LevelMap.h"
 
+int Enemy::enemy_count_ = 0;
+
 Enemy::Enemy(LevelMap* level, const sf::Vector2i& gridpos, const EntityType& type)
-	: Entity(level, gridpos, type), ai_(nullptr)
+	: Entity(level, gridpos, type), ai_(nullptr), id_(enemy_count_++)
 {
 	// Set enemy AI
 	switch (type) {
@@ -22,7 +24,8 @@ void Enemy::Update(const sf::Time& delta)
 	sf::Vector2i new_pos = GetGridPosition();
 
 	if (level_->IsEnemyTurn() && moveclock_.getElapsedTime().asSeconds() >= MOVE_DELAY) {
-		if (ai_) ai_->TakeTurn();
+		assert(ai_);
+		ai_->TakeTurn();
 		moveclock_.restart(); // Restart clock for other enemies
 	}
 }

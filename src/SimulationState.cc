@@ -58,10 +58,11 @@ void SimulationState::Update(const sf::Time& delta)
 	Tile* player_tile = level_->GetTileAt(player->GetGridPosition());
 
 	// Update win condition
-	if (player_tile->GetType() == TileType::kStairs)
-		win_state_ = 1;	// Player reached the stairs, level is complete
-	else if (level_->IsPlayerCaught())
+	if (player_tile->GetType() == TileType::kStairs) {
+		win_state_ = 1;
+	} else if (level_->IsPlayerCaught()) {
 		win_state_ = -1;
+	}
 	else
 		win_state_ = 0; // Player decides not to leave the level for whatever reason
 

@@ -9,8 +9,6 @@
 
 #include <vector>
 
-const std::string MAP_LOADED = "res/lv4.map";
-
 class LevelMap
 {
 public:
@@ -26,15 +24,17 @@ public:
 	WindowContext& GetWindowContext() const { return window_; }
 	sf::Vector2f GetGridbounds() const;
 
+	std::string GetMapLoaded() const { return map_loaded_; }
+
 	bool IsEnemyTurn() const { return is_enemyturn_; }
 	void SetEnemyTurn(bool flag) { is_enemyturn_ = flag; }
+	bool EnemiesExist() const { return entities_.size() > 1; }
 
 	Tile* GetTileAt(const sf::Vector2i& gridpos) const;
 	Tile* GetTileAt(const size_t& i) const;
 	Player* GetPlayer() { return player_; }
 	Entity* GetEntityAt(const sf::Vector2i& gridpos);
 	Entity* GetEntityAt(const size_t& i);
-	bool EnemiesExist() const { return entities_.size() > 1; }
 	Block* GetBlockAt(const sf::Vector2i& gridpos);
 	Block* GetBlockAt(const size_t& i);
 	Collectible* GetCollectibleAt(const sf::Vector2i& gridpos);
@@ -61,6 +61,7 @@ public:
 private:
 	WindowContext& window_;
 
+	std::string map_loaded_;
 	bool is_enemyturn_;
 
 	std::vector<std::unique_ptr<Tile>> tiles_;

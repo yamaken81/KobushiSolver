@@ -30,8 +30,8 @@ void LevelMap::Init(int level)
 			tiles_.push_back(std::make_unique<Tile>(tile));
 		}
 
-	std::string path = "res/lv" + std::to_string(level) + ".map";
-	BuildFromFile(path);
+	map_loaded_ = "res/lv" + std::to_string(level) + ".map";
+	BuildFromFile(map_loaded_);
 	// BuildAsDebug(); // Uncomment this line to build a debug map
 }
 
@@ -126,7 +126,7 @@ void LevelMap::BuildFromFile(std::string path)
 		}
 	}
 #ifdef _DEBUG
-	std::cerr << "INFO: Map \"" << MAP_LOADED << "\" loaded.\n\n";
+	std::cerr << "INFO: Map \"" << map_loaded_ << "\" loaded.\n\n";
 #endif
 }
 
