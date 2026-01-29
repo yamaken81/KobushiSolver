@@ -20,6 +20,7 @@ void LevelMap::Init(int level)
 	blocks_.clear();
 	collectibles_.clear();
 	player_ = nullptr;
+	is_enemyturn_ = false;
 
 	// INIT TILES
 	for (int y = 0; y < ROW_SIZE; y++)

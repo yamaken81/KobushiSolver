@@ -29,10 +29,8 @@ void SimulationState::Init()
 
 void SimulationState::HandleInput(const sf::Event event)
 {
-	if (const auto* key = event.getIf<sf::Event::KeyPressed>())
-	{
-		if (key->code == sf::Keyboard::Key::Escape)
-		{
+	if (const auto* key = event.getIf<sf::Event::KeyPressed>()) {
+		if (key->code == sf::Keyboard::Key::Escape) {
 			state_manager_->ChangeState(kMainMenu); // Go back to main menu
 #ifdef _DEBUG
 			std::cout << "INFO: Simulation ended.\n\n";
@@ -42,11 +40,8 @@ void SimulationState::HandleInput(const sf::Event event)
 	}
 
 	bool enemy_turn = level_->IsEnemyTurn() && level_->EnemiesExist();
-	if (event.getIf<sf::Event::KeyPressed>() && !is_keypress_ && !enemy_turn && !win_state_) // to prevent multiple key presses from stacking
-	{
-		// Handle input for the level
+	if (event.getIf<sf::Event::KeyPressed>() && !is_keypress_ && !enemy_turn && !win_state_) {
 		level_->HandleInput(event);
-
 		is_keypress_ = true;
 	}
 	
@@ -64,19 +59,14 @@ void SimulationState::Update(const sf::Time& delta)
 
 	// Update win condition
 	if (player_tile->GetType() == TileType::kStairs)
-	{
 		win_state_ = 1;	// Player reached the stairs, level is complete
-	}
 	else if (level_->IsPlayerCaught())
-	{
 		win_state_ = -1;
-	}
 	else
 		win_state_ = 0; // Player decides not to leave the level for whatever reason
 
 	// Update win text
-	switch (win_state_)
-	{
+	switch (win_state_) {
 	case 1:
 		elements_.at("win").setString(std::string("LEVEL COMPLETE! Press Esc to exit to main menu."));
 		LayoutElements();

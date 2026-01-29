@@ -13,10 +13,9 @@ void Enemy::Update(const sf::Time& delta)
 	sf::Vector2i offs;
 	sf::Vector2i new_pos = GetGridPosition();
 
-	if (GetLevelMap()->IsEnemyTurn() && moveclock_.getElapsedTime().asSeconds() >= MOVE_DELAY)
-	{
-		switch (GetType())
-		{
+	bool enemy_turn = level_->IsEnemyTurn() && level_->EnemiesExist();
+	if (enemy_turn && moveclock_.getElapsedTime().asSeconds() >= MOVE_DELAY) {
+		switch (GetType()) {
 		case EntityType::kDevilbot:
 			offs = FindPath(new_pos);
 			new_pos = ResolveCollisions(offs);
@@ -24,8 +23,7 @@ void Enemy::Update(const sf::Time& delta)
 			SetGridPosition(new_pos);
 			Layout();
 
-			switch (moves_)
-			{
+			switch (moves_) {
 			case 0:
 				moves_++; // Increment moves after first move
 				break;

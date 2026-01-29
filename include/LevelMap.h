@@ -15,7 +15,7 @@ class LevelMap
 {
 public:
 	LevelMap(WindowContext& window)
-		: is_enemyturn(false), player_(nullptr), window_(window) {}
+		: is_enemyturn_(false), player_(nullptr), window_(window) {}
 
 	// CONSTRUCTOR HELPERS
 	void Init(int level);
@@ -26,8 +26,8 @@ public:
 	WindowContext& GetWindowContext() const { return window_; }
 	sf::Vector2f GetGridbounds() const;
 
-	bool IsEnemyTurn() const { return is_enemyturn; }
-	void SetEnemyTurn(bool flag) { is_enemyturn = flag; }
+	bool IsEnemyTurn() const { return is_enemyturn_; }
+	void SetEnemyTurn(bool flag) { is_enemyturn_ = flag; }
 
 	Tile* GetTileAt(const sf::Vector2i& gridpos) const;
 	Tile* GetTileAt(const size_t& i) const;
@@ -61,7 +61,7 @@ public:
 private:
 	WindowContext& window_;
 
-	bool is_enemyturn;
+	bool is_enemyturn_;
 
 	std::vector<std::unique_ptr<Tile>> tiles_;
 	std::vector<std::unique_ptr<Entity>> entities_;
